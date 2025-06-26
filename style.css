@@ -274,13 +274,14 @@ nav {
 
 #datePicker,
 #datePickerCopy {
-    padding: 6px 10px;
+    width: 100%;
+    padding: 6px 12px;
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 12px;
-    background-color: white;
-    cursor: pointer;
-    transition: border-color 0.3s ease;
+    color: #333;
+    background-color: #fff;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 #datePicker:focus,
@@ -288,6 +289,24 @@ nav {
     outline: none;
     border-color: #4caf50;
     box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+/* 모바일에서의 날짜 선택기 스타일 통일 */
+@media screen and (max-width: 768px) {
+    #datePicker,
+    #datePickerCopy {
+        -webkit-appearance: none;
+        appearance: none;
+        background-color: #fff;
+        padding: 8px 12px;
+    }
+
+    #datePicker::-webkit-calendar-picker-indicator,
+    #datePickerCopy::-webkit-calendar-picker-indicator {
+        filter: invert(0.5);
+        cursor: pointer;
+        opacity: 0.6;
+    }
 }
 
 .code-group {
