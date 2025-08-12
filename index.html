@@ -6,32 +6,24 @@
     <meta charset="UTF-8" />
     <title>우리집 DayCareCenter</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- Google Fonts 추가 - Noto Sans KR 폰트를 사용하여 한글 표시 최적화 -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
         rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="style.css" />
-    <!-- Supabase 클라이언트 라이브러리 추가 -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- 사용자 정의 Supabase 스크립트 -->
     <script src="supabase.js"></script>
     <script type="module" src="https://sclass0614.github.io/authCheck/authCheck.js"></script>
-
 
 </head>
 
 <body>
-    <!-- 로딩 오버레이 추가 -->
     <div id="loadingOverlay">
         <div class="loader"></div>
         <div class="loading-text">데이터를 처리중입니다...</div>
     </div>
 
-    <!-- ==========================================================================
-       [4] Header & Navigation
-       ========================================================================== -->
     <header id="main-header">
         <h1 id="app-title">
             <i class="fas fa-home header-icon"></i>
@@ -39,10 +31,6 @@
         </h1>
     </header>
 
-
-
-
-    <!-- 직원명 선택 모달 -->
     <div id="staffSelectModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -60,7 +48,6 @@
                         </tr>
                     </thead>
                     <tbody id="staff-list-body">
-                        <!-- 직원명 데이터가 여기에 동적으로 로드됩니다 -->
                     </tbody>
                 </table>
             </div>
@@ -72,9 +59,6 @@
     </div>
 
     <main id="app-main">
-        <!-- ==========================================================================
-         [5] Page 1: Daily Plan
-         ========================================================================== -->
         <section class="page active" id="page1">
             <div id="plan-header" class="header-container">
                 <h2 id="plan-title">Daily Plan</h2>
@@ -88,7 +72,6 @@
                 </div>
             </div>
             
-            <!-- 원본 테이블 -->
             <div id="plan-table-container" class="panel thick-border">
                 <div class="table-container">
                     <table class="list-table" id="daily-plan-table">
@@ -107,13 +90,11 @@
                             </tr>
                         </thead>
                         <tbody id="table-body">
-                            <!-- 동적 데이터 로드 -->
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- 복사 기능을 위한 날짜 선택 영역 -->
             <div id="copy-date-section" class="header-container" style="margin-top: 20px;">
                 <h2>Plan Copy</h2>
                 <div class="date-search-container">
@@ -126,7 +107,6 @@
                         </div>
                 </div>
 
-            <!-- 복사된 테이블 -->
             <div id="plan-table-container-copy" class="panel thick-border">
                 <div class="table-container">
                     <table class="list-table" id="daily-plan-table-copy">
@@ -145,14 +125,12 @@
                             </tr>
                         </thead>
                         <tbody id="table-body-copy">
-                            <!-- 복사된 데이터가 여기에 표시됩니다 -->
                         </tbody>
                     </table>
                 </div>
             </div>
         </section>
 
-        <!-- 커스텀 확인 대화상자 컨테이너 -->
         <div id="customConfirm" class="custom-alert">
             <div id="confirm-content" class="custom-alert-content">
                 <div id="confirm-header" class="custom-alert-header confirm-header">
@@ -176,7 +154,6 @@
                 </div>
             </div>
         </div>
-        <!-- 커스텀 알림 컨테이너 -->
         <div id="customAlert" class="custom-alert">
             <div id="alert-content" class="custom-alert-content">
                 <div id="alert-header" class="custom-alert-header">
@@ -197,15 +174,9 @@
             </div>
         </div>
 
-
     </main>
 
-    <!-- ==========================================================================
-       [7] JavaScript: 함수 모듈화 및 이벤트 처리
-       ========================================================================== -->
-
     <script>
-        // 로딩 표시 함수들 추가
         function showLoading() {
             document.getElementById("loadingOverlay").style.display = "flex";
         }
@@ -214,12 +185,11 @@
             document.getElementById("loadingOverlay").style.display = "none";
         }
 
-        let dailyPlanAll = []; // 모든 계획 데이터를 저장하는 배열
+        let dailyPlanAll = [];
         let employeeall = [];
-        let employeeall_copy = []; // 복사할 날짜에 계약기간이 유효한 직원들
-        let copiedPlans = []; // 복사된 계획 데이터를 저장하는 배열
+        let employeeall_copy = [];
+        let copiedPlans = [];
 
-        // Supabase 함수 호출을 위한 유틸리티 함수들
         async function getPlanAllPromise() {
             return await getPlanAll();
         }
@@ -241,36 +211,22 @@
         }
 
         async function initialize() {
-            showLoading(); // 초기화 시작 시 로딩 표시
+            showLoading();
 
             try {
-                console.log("Supabase 클라이언트 초기화 시작...");
-                
-                // 두 작업을 병렬로 실행하기 위해 Promise.all 사용
                 const results = await Promise.all([
                     getPlanAllPromise(),
                     getEmployeesPromise()
                 ]);
 
-                // 결과 할당
                 dailyPlanAll = results[0];
                 employeeall = results[1];
 
-                console.log("데이터 로드 완료");
-                console.log("계획 데이터 개수:", dailyPlanAll ? dailyPlanAll.length : 0);
-                console.log("직원 데이터 개수:", employeeall ? employeeall.length : 0);
-                console.log("계획 데이터 샘플:", dailyPlanAll ? dailyPlanAll.slice(0, 3) : "데이터 없음");
-                console.log("직원 데이터 샘플:", employeeall ? employeeall.slice(0, 3) : "데이터 없음");
-
-                // 데이터 로드 후 테이블 생성
                 makeTable_plan();
-                console.log("모든 데이터 로드 완료");
             } catch (error) {
-                console.error("초기화 중 오류 발생:", error);
-                console.error("오류 스택:", error.stack);
                 showCustomAlert("데이터를 불러오는데 실패했습니다: " + error.message);
             } finally {
-                hideLoading(); // 성공 여부와 관계없이 로딩 표시 제거
+                hideLoading();
             }
         }
 
@@ -279,9 +235,7 @@
             try {
                 dailyPlanAll = await getPlanAllPromise();
                 makeTable_plan();
-                console.log("계획 데이터 새로고침 완료");
             } catch (error) {
-                console.error("데이터 로드 실패:", error);
                 showCustomAlert("데이터를 불러오는데 실패했습니다: " + error);
             } finally {
                 hideLoading();
@@ -292,70 +246,48 @@
             showLoading();
             try {
                 employeeall = await getEmployeesPromise();
-                console.log("직원 데이터 새로고침 완료");
             } catch (error) {
-                console.error("직원 데이터 로드 실패:", error);
                 showCustomAlert("직원 데이터를 불러오는데 실패했습니다: " + error);
             } finally {
                 hideLoading();
             }
         }
 
-
-
         function changeDate(dateStr) {
-            // dateStr이 undefined나 null이면 빈 문자열 반환
             if (!dateStr) return '';
 
-            // dateStr이 문자열이 아니면 문자열로 변환
             if (typeof dateStr !== 'string') {
                 dateStr = String(dateStr);
             }
 
-            // 하이픈(-)이 있으면 제거 (yyyy-mm-dd → yyyymmdd)
             return dateStr.replace(/-/g, "");
         }
-
-
 
         function makeTable_plan() {
             const selectedDate = changeDate(
                 document.getElementById("datePicker").value
             );
-            console.log("선택된 날짜:", selectedDate);
-            console.log("전체 데이터:", dailyPlanAll);
 
-            // 선택된 날짜가 없으면 return
             if (!selectedDate) {
-                console.log("날짜가 선택되지 않았습니다.");
                 return;
             }
 
-            // 날짜에 해당하는 계획 데이터 필터링
             const filteredPlans = dailyPlanAll.filter((plan) => {
-                // plan[1]이 이미 숫자 문자열 형식이므로 직접 비교
-                console.log("계획 날짜:", plan[1], "선택 날짜:", selectedDate);
                 return plan[1] == selectedDate;
             });
-            console.log("필터링된 계획 데이터:", filteredPlans.length + "개 항목");
 
-            // 시작시간(인덱스 2)과 직원명(인덱스 5)를 기준으로 기본 정렬
             filteredPlans.sort((a, b) => {
-                // 시작시간 비교 (작은따옴표 제거 후 비교)
                 const timeA = a[2].replace(/'/g, "");
                 const timeB = b[2].replace(/'/g, "");
                 if (timeA !== timeB) {
                     return timeA.localeCompare(timeB);
                 }
-                // 시작시간이 같은 경우 직원명 이름으로 비교
                 return a[5].localeCompare(b[5]);
             });
 
-            // 테이블 내용 초기화
             const tableBody = document.getElementById("table-body");
             tableBody.innerHTML = "";
 
-            // 데이터가 없는 경우 처리
             if (filteredPlans.length === 0) {
                 const emptyRow = document.createElement("tr");
                 const emptyCell = document.createElement("td");
@@ -368,16 +300,14 @@
                 return;
             }
 
-            // 필터링된 데이터를 테이블에 추가
             displaySortedData(filteredPlans);
         }
 
-        let currentSortColumn = 1; // 기본 정렬 컬럼 (시작시간)
-        let isAscending = true; // 정렬 방향
+        let currentSortColumn = 1;
+        let isAscending = true;
         
-        // 복사된 테이블용 정렬 변수
-        let currentSortColumnCopy = 1; // 기본 정렬 컬럼 (시작시간)
-        let isAscendingCopy = true; // 정렬 방향
+        let currentSortColumnCopy = 1;
+        let isAscendingCopy = true;
 
         function displaySortedData(data) {
             const tableBody = document.getElementById("table-body");
@@ -386,17 +316,14 @@
             data.forEach((plan) => {
                 const row = document.createElement("tr");
 
-                // 표시할 컬럼: 날짜(1), 시작시간(2), 종료시간(3), 직원번호(4), 직원명(5), 활동명(6), 코드(7), 활동장소(8), 준비물품(9), 내용(10)
                 const columns = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
                 columns.forEach((index) => {
                     const cell = document.createElement("td");
-                    // 모든 데이터를 그대로 표시
                     cell.textContent = plan[index] || "";
                     row.appendChild(cell);
                 });
 
-                // 행 더블클릭 이벤트 - 복사 기능
                 row.addEventListener("dblclick", function () {
                     copyPlanToTarget(plan);
                 });
@@ -405,7 +332,6 @@
             });
         }
 
-        // 테이블 헤더 클릭 이벤트 설정
         document.addEventListener("DOMContentLoaded", function () {
 
             const headers = document.querySelectorAll("#plan-table-header th");
@@ -414,7 +340,6 @@
                 header.addEventListener("click", () => sortTable(index));
             });
             
-            // 복사된 테이블 헤더 클릭 이벤트 설정
             const headersCopy = document.querySelectorAll("#plan-table-header-copy th");
             headersCopy.forEach((header, index) => {
                 header.style.cursor = "pointer";
@@ -428,7 +353,6 @@
                 return plan[1] == selectedDate;
             });
 
-            // 같은 컬럼을 다시 클릭하면 정렬 방향 전환
             if (columnIndex === currentSortColumn) {
                 isAscending = !isAscending;
             } else {
@@ -436,16 +360,13 @@
                 isAscending = true;
             }
 
-            // 컬럼 인덱스에 따른 실제 데이터 인덱스 매핑
             const dataIndexMap = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
             const dataIndex = dataIndexMap[columnIndex];
 
-            // 정렬 로직
             filteredPlans.sort((a, b) => {
                 let valueA = (a[dataIndex] || "").toString().replace(/'/g, "");
                 let valueB = (b[dataIndex] || "").toString().replace(/'/g, "");
 
-                // 시간 값에 대한 특별 처리
                 if (dataIndex === 2 || dataIndex === 3) {
                     valueA = valueA.padStart(4, '0');
                     valueB = valueB.padStart(4, '0');
@@ -462,12 +383,10 @@
         }
 
         function sortTableCopy(columnIndex) {
-            // 복사된 계획이 없으면 정렬할 데이터가 없음
             if (copiedPlans.length === 0) {
                 return;
             }
 
-            // 같은 컬럼을 다시 클릭하면 정렬 방향 전환
             if (columnIndex === currentSortColumnCopy) {
                 isAscendingCopy = !isAscendingCopy;
             } else {
@@ -475,16 +394,13 @@
                 isAscendingCopy = true;
             }
 
-            // 컬럼 인덱스에 따른 실제 데이터 인덱스 매핑
             const dataIndexMap = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
             const dataIndex = dataIndexMap[columnIndex];
 
-            // 복사된 계획 배열을 정렬
             copiedPlans.sort((a, b) => {
                 let valueA = (a[dataIndex] || "").toString().replace(/'/g, "");
                 let valueB = (b[dataIndex] || "").toString().replace(/'/g, "");
 
-                // 시간 값에 대한 특별 처리
                 if (dataIndex === 2 || dataIndex === 3) {
                     valueA = valueA.padStart(4, '0');
                     valueB = valueB.padStart(4, '0');
@@ -497,19 +413,9 @@
                 }
             });
 
-            // 정렬된 데이터로 복사된 테이블 업데이트
             displayCopiedData(copiedPlans);
         }
 
-
-
-        /**
-         * 코드 필터링 함수
-       * @param {string} searchTerm - 검색어
-         * 소분류코드 모달에서 코드 검색 기능
-         * 검색어에 따라 관련 코드만 표시
-         * 검색어가 없을 경우 모든 코드 표시
-       */
         function filterCodes(searchTerm) {
             searchTerm = searchTerm.toLowerCase();
             const codeListItems = document.querySelectorAll(".code-list li");
@@ -538,8 +444,6 @@
             }
         }
 
-
-
         function showCustomAlert(message) {
             document.getElementById("customAlertMessage").textContent = message;
             document.getElementById("customAlert").style.display = "flex";
@@ -553,7 +457,6 @@
             document.getElementById("customConfirmMessage").textContent = message;
             document.getElementById("customConfirm").style.display = "flex";
 
-            // 확인 버튼 클릭 이벤트 핸들러 설정
             document.getElementById("confirm-ok-btn").onclick = function () {
                 closeCustomConfirm(true);
                 if (typeof onConfirm === 'function') {
@@ -561,7 +464,6 @@
                 }
             };
 
-            // 취소 버튼 클릭 이벤트 핸들러 설정
             document.getElementById("confirm-cancel-btn").onclick = function () {
                 closeCustomConfirm(false);
                 if (typeof onCancel === 'function') {
@@ -575,11 +477,6 @@
             return confirmed;
         }
 
-
-
-        /**
-         * 복사된 계획을 저장하는 함수
-         */
         async function saveCopiedPlans() {
             showLoading();
             try {
@@ -595,34 +492,31 @@
                     return;
                 }
 
-                // 해당 날짜의 기존 계획이 있는지 확인하고 삭제 (날짜 변경 시 이미 삭제되었을 수 있음)
                 const existingPlans = dailyPlanAll.filter(plan => {
                     return plan[1] == targetDate;
                 });
                 
                 if (existingPlans.length > 0) {
-                    console.log(`남아있는 기존 계획 ${existingPlans.length}개 삭제 중...`);
                     for (const existingPlan of existingPlans) {
-                        await deletePlanPromise(existingPlan[0]); // 계획_ID로 삭제
+                        await deletePlanPromise(existingPlan[0]);
                     }
                 }
 
-                // 복사된 계획들을 새로운 날짜로 저장
                 for (const plan of copiedPlans) {
                     const planData = [
-                        "", // 계획_ID는 Supabase에서 자동 생성됨
-                        targetDate, // 새로운 날짜
-                        plan[2], // 시작시간
-                        plan[3], // 종료시간
-                        plan[4], // 직원번호
-                        plan[5], // 직원명
-                        plan[6], // 활동명
-                        plan[7], // 코드
-                        plan[8], // 활동장소
-                        plan[9], // 준비물품
-                        plan[10], // 내용및특이사항
-                        plan[11], // 활동기록
-                        plan[12] // 참고사진URL
+                        "",
+                        targetDate,
+                        plan[2],
+                        plan[3],
+                        plan[4],
+                        plan[5],
+                        plan[6],
+                        plan[7],
+                        plan[8],
+                        plan[9],
+                        plan[10],
+                        plan[11],
+                        plan[12]
                     ];
 
                     await appendPlanPromise(planData);
@@ -630,11 +524,9 @@
 
                 showCustomAlert(`${copiedPlans.length}개의 계획이 성공적으로 복사 저장되었습니다.`);
                 
-                // 복사된 계획 초기화
                 copiedPlans = [];
                 makeTable_plan_copy();
                 
-                // 원본 데이터 새로고침
                 await getPlanAll_id();
                 
             } catch (error) {
@@ -644,14 +536,10 @@
             }
         }
 
-        /**
-         * 복사된 테이블을 표시하는 함수
-         */
         function makeTable_plan_copy() {
             const tableBody = document.getElementById("table-body-copy");
             tableBody.innerHTML = "";
 
-            // 복사된 데이터가 없는 경우 처리
             if (copiedPlans.length === 0) {
                 const emptyRow = document.createElement("tr");
                 const emptyCell = document.createElement("td");
@@ -664,13 +552,9 @@
                 return;
             }
 
-            // 복사된 데이터를 테이블에 추가
             displayCopiedData(copiedPlans);
         }
 
-        /**
-         * 복사된 데이터를 표시하는 함수
-         */
         function displayCopiedData(data) {
             const tableBody = document.getElementById("table-body-copy");
             tableBody.innerHTML = "";
@@ -678,17 +562,14 @@
             data.forEach((plan, index) => {
                 const row = document.createElement("tr");
 
-                // 표시할 컬럼: 날짜(1), 시작시간(2), 종료시간(3), 직원번호(4), 직원명(5), 활동명(6), 코드(7), 활동장소(8), 준비물품(9), 내용(10)
                 const columns = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
                 columns.forEach((colIndex) => {
                     const cell = document.createElement("td");
-                    // 모든 데이터를 그대로 표시
                     cell.textContent = plan[colIndex] || "";
                     row.appendChild(cell);
                 });
 
-                // 행 더블클릭 이벤트 - 삭제 기능
                 row.addEventListener("dblclick", function () {
                     removeCopiedPlan(index);
                 });
@@ -697,35 +578,26 @@
             });
         }
 
-        /**
-         * 계획을 복사 대상 테이블로 복사하는 함수
-         */
         function copyPlanToTarget(plan) {
-            // datePickerCopy 날짜 유효성 검사
             const sourceDatePicker = document.getElementById("datePicker").value;
             const targetDatePicker = document.getElementById("datePickerCopy").value;
             
-            // 복사할 날짜가 선택되지 않은 경우
             if (!targetDatePicker) {
                 showCustomAlert("복사할 날짜를 먼저 선택해주세요.");
                 return;
             }
             
-            // 원본 날짜와 복사할 날짜가 같은 경우
             if (sourceDatePicker === targetDatePicker) {
                 showCustomAlert("같은 날짜로는 복사할 수 없습니다. 다른 날짜를 선택해주세요.");
                 return;
             }
 
-            // 해당 직원이 복사할 날짜에 계약기간이 유효한지 확인
-            const employeeId = plan[4]; // 직원번호
-            const employeeName = plan[5]; // 직원명
+            const employeeId = plan[4];
+            const employeeName = plan[5];
             
-            // 여러명의 직원이 쉼표로 구분되어 있는 경우 처리
             const employeeIds = employeeId.split(',').map(id => id.trim());
             const employeeNames = employeeName.split(',').map(name => name.trim());
             
-            // 모든 직원이 유효한지 확인
             const allValidEmployees = employeeIds.every(id => 
                 employeeall_copy.some(emp => emp[0] === id)
             );
@@ -735,12 +607,11 @@
                 return;
             }
 
-            // 이미 복사된 계획인지 확인
             const isAlreadyCopied = copiedPlans.some(copiedPlan => 
-                copiedPlan[0] === plan[0] && // 계획_ID가 같고
-                copiedPlan[2] === plan[2] && // 시작시간이 같고
-                copiedPlan[3] === plan[3] && // 종료시간이 같고
-                copiedPlan[5] === plan[5]    // 직원명이 같으면
+                copiedPlan[0] === plan[0] &&
+                copiedPlan[2] === plan[2] &&
+                copiedPlan[3] === plan[3] &&
+                copiedPlan[5] === plan[5]
             );
 
             if (isAlreadyCopied) {
@@ -748,51 +619,35 @@
                 return;
             }
 
-            // datePickerCopy의 날짜를 plan의 날짜 필드(index 1)에 설정
             const targetDateFormatted = changeDate(targetDatePicker);
             const copiedPlan = [...plan];
-            copiedPlan[1] = targetDateFormatted; // 날짜 필드 업데이트
+            copiedPlan[1] = targetDateFormatted;
 
-            // 복사된 계획 배열에 추가
             copiedPlans.push(copiedPlan);
             
-            // 복사된 테이블 업데이트
             makeTable_plan_copy();
             
         }
 
-        /**
-         * 복사된 계획을 제거하는 함수
-         */
         function removeCopiedPlan(index) {
             copiedPlans.splice(index, 1);
             makeTable_plan_copy();
             showCustomAlert("복사된 계획이 제거되었습니다.");
         }
 
-        /**
-         * 직원 선택 모달을 표시하는 함수
-         */
         function showEmployeeSelectionModal(originalPlan, invalidEmployeeIds, invalidEmployeeNames) {
-            // 모달 제목 설정
             document.getElementById("staff-modal-title").textContent = "기존 계획 관련 재직 직원 재선택";
             
-            // 직원명 선택 모달 열기
             document.getElementById("staffSelectModal").style.display = "block";
             
-            // 복사할 날짜에 유효한 직원들로 테이블 채우기
             populateValidStaffTableForSelection();
             
-            // 선택완료 버튼 이벤트 리스너 추가
             const selectCompleteBtn = document.getElementById("selectStaffCompleteBtn");
             
-            // 기존 이벤트 리스너 제거
             const newSelectCompleteBtn = selectCompleteBtn.cloneNode(true);
             selectCompleteBtn.parentNode.replaceChild(newSelectCompleteBtn, selectCompleteBtn);
             
-            // 새로운 이벤트 리스너 추가
             newSelectCompleteBtn.addEventListener("click", function() {
-                // 체크된 직원들 수집
                 const checkboxes = document.querySelectorAll("#staff-list-body input[type='checkbox']:checked");
                 
                 if (checkboxes.length === 0) {
@@ -800,7 +655,6 @@
                     return;
                 }
                 
-                // 선택된 직원들 정보 수집
                 const selectedIds = [];
                 const selectedNames = [];
                 
@@ -809,31 +663,24 @@
                     selectedNames.push(checkbox.dataset.employeeName);
                 });
                 
-                // 선택된 직원들로 계획 업데이트
                 const updatedPlan = [...originalPlan];
-                updatedPlan[4] = selectedIds.join(', '); // 직원번호들
-                updatedPlan[5] = selectedNames.join(', '); // 직원명들
+                updatedPlan[4] = selectedIds.join(', ');
+                updatedPlan[5] = selectedNames.join(', ');
                 
-                // 복사 실행
                 copyPlanWithValidEmployee(updatedPlan);
                 
-                // 모달 닫기
                 document.getElementById("staffSelectModal").style.display = "none";
             });
         }
 
-        /**
-         * 유효한 직원으로 계획 복사 (직원 유효성 검사 없이)
-         */
         function copyPlanWithValidEmployee(plan) {
             const targetDatePicker = document.getElementById("datePickerCopy").value;
             
-            // 이미 복사된 계획인지 확인
             const isAlreadyCopied = copiedPlans.some(copiedPlan => 
-                copiedPlan[0] === plan[0] && // 계획_ID가 같고
-                copiedPlan[2] === plan[2] && // 시작시간이 같고
-                copiedPlan[3] === plan[3] && // 종료시간이 같고
-                copiedPlan[5] === plan[5]    // 직원명이 같으면
+                copiedPlan[0] === plan[0] &&
+                copiedPlan[2] === plan[2] &&
+                copiedPlan[3] === plan[3] &&
+                copiedPlan[5] === plan[5]
             );
 
             if (isAlreadyCopied) {
@@ -841,34 +688,23 @@
                 return;
             }
 
-            // datePickerCopy의 날짜를 plan의 날짜 필드(index 1)에 설정
             const targetDateFormatted = changeDate(targetDatePicker);
             const copiedPlan = [...plan];
-            copiedPlan[1] = targetDateFormatted; // 날짜 필드 업데이트
+            copiedPlan[1] = targetDateFormatted;
 
-            // 복사된 계획 배열에 추가
             copiedPlans.push(copiedPlan);
             
-            // 복사된 테이블 업데이트
             makeTable_plan_copy();
             
         }
 
-        /**
-         * 선택된 직원 수를 표시하는 함수 (사용 안함)
-         */
         function updateSelectedEmployeeCount(count) {
-            // 더 이상 선택된 직원 수를 표시하지 않음
         }
 
-        /**
-         * 다중 선택을 위한 직원 테이블 채우기
-         */
         function populateValidStaffTableForSelection() {
             const tableBody = document.getElementById("staff-list-body");
-            tableBody.innerHTML = ""; // 테이블 초기화
+            tableBody.innerHTML = "";
 
-            // employeeall_copy 배열로 테이블 채우기
             if (employeeall_copy.length === 0) {
                 const row = document.createElement("tr");
                 const cell = document.createElement("td");
@@ -881,19 +717,16 @@
                 return;
             }
 
-            // 직원번호(인덱스 0)를 기준으로 오름차순 정렬
             const sortedEmployees = [...employeeall_copy].sort((a, b) => {
                 const idA = a[0] || "";
                 const idB = b[0] || "";
-                return idA.localeCompare(idB); // 직원번호 정렬
+                return idA.localeCompare(idB);
             });
 
-            // 정렬된 직원 데이터를 테이블에 추가
             sortedEmployees.forEach(employee => {
                 const row = document.createElement("tr");
                 row.style.cursor = "pointer";
 
-                // 체크박스 컬럼
                 const checkboxCell = document.createElement("td");
                 const checkbox = document.createElement("input");
                 checkbox.type = "checkbox";
@@ -902,19 +735,17 @@
                 checkbox.dataset.employeeName = employee[1] || "";
                 checkboxCell.appendChild(checkbox);
 
-                // 직원번호(인덱스 0)와 이름(인덱스 1) 컬럼
                 const idCell = document.createElement("td");
-                idCell.textContent = employee[0] || ""; // 직원번호
+                idCell.textContent = employee[0] || "";
 
                 const nameCell = document.createElement("td");
-                nameCell.textContent = employee[1] || ""; // 직원명
+                nameCell.textContent = employee[1] || "";
 
                 row.appendChild(checkboxCell);
                 row.appendChild(idCell);
                 row.appendChild(nameCell);
                 tableBody.appendChild(row);
 
-                // 행 클릭 시 체크박스 토글
                 row.addEventListener("click", function(e) {
                     if (e.target.type !== "checkbox") {
                         checkbox.checked = !checkbox.checked;
@@ -922,7 +753,6 @@
                 });
             });
 
-            // 안내 메시지 추가
             const infoRow = document.createElement("tr");
             const infoCell = document.createElement("td");
             infoCell.colSpan = 3;
@@ -934,14 +764,10 @@
             tableBody.appendChild(infoRow);
         }
 
-        /**
-         * 복사할 날짜에 유효한 직원들로 직원 테이블 채우기
-         */
         function populateValidStaffTable() {
             const tableBody = document.getElementById("staff-list-body");
-            tableBody.innerHTML = ""; // 테이블 초기화
+            tableBody.innerHTML = "";
 
-            // employeeall_copy 배열로 테이블 채우기
             if (employeeall_copy.length === 0) {
                 const row = document.createElement("tr");
                 const cell = document.createElement("td");
@@ -954,23 +780,20 @@
                 return;
             }
 
-            // 이름(인덱스 1)을 기준으로 오름차순 정렬
             const sortedEmployees = [...employeeall_copy].sort((a, b) => {
                 const nameA = a[1] || "";
                 const nameB = b[1] || "";
-                return nameA.localeCompare(nameB); // 한글 이름 정렬 지원
+                return nameA.localeCompare(nameB);
             });
 
-            // 정렬된 직원 데이터를 테이블에 추가
             sortedEmployees.forEach(employee => {
                 const row = document.createElement("tr");
 
-                // 직원번호(인덱스 0)와 이름(인덱스 1) 컬럼
                 const idCell = document.createElement("td");
-                idCell.textContent = employee[0] || ""; // 직원번호
+                idCell.textContent = employee[0] || "";
 
                 const nameCell = document.createElement("td");
-                nameCell.textContent = employee[1] || ""; // 직원명
+                nameCell.textContent = employee[1] || "";
 
                 row.appendChild(idCell);
                 row.appendChild(nameCell);
@@ -978,61 +801,45 @@
             });
         }
 
-        /**
-         * 복사할 날짜에 계약기간이 유효한 직원 목록 업데이트
-         */
         function updateEmployeeCopyList(targetDateFormatted) {
             employeeall_copy = [];
             
-            // 직원 데이터가 없는 경우
             if (!employeeall || employeeall.length <= 1) {
-                console.log("직원 데이터가 없습니다.");
                 return;
             }
             
-            // 헤더 행은 제외하고 데이터 행부터 처리
             for (let i = 1; i < employeeall.length; i++) {
                 const employee = employeeall[i];
-                const startDate = employee[2] || ""; // 계약시작일
-                const endDate = employee[3] || "";   // 계약종료일
+                const startDate = employee[2] || "";
+                const endDate = employee[3] || "";
                 
-                // 날짜 비교: 선택된 날짜가 계약기간 내에 있는지 확인
                 if (startDate && targetDateFormatted >= startDate &&
                     (!endDate || targetDateFormatted <= endDate)) {
                     employeeall_copy.push(employee);
                 }
             }
-            
-            console.log(`복사할 날짜(${targetDateFormatted})에 유효한 직원 수: ${employeeall_copy.length}`);
         }
 
-        /**
-         * 복사할 날짜에 기존 계획이 있는지 확인하는 함수
-         */
         function checkExistingPlansForCopyDate() {
             const targetDatePicker = document.getElementById("datePickerCopy").value;
             const sourceDatePicker = document.getElementById("datePicker").value;
             
-            // 날짜가 선택되지 않은 경우
             if (!targetDatePicker) {
-                employeeall_copy = []; // 배열 초기화
+                employeeall_copy = [];
                 return;
             }
             
-            // 원본 날짜와 복사할 날짜가 같은 경우
             if (sourceDatePicker === targetDatePicker) {
                 showCustomAlert("같은 날짜로는 복사할 수 없습니다. 다른 날짜를 선택해주세요.");
                 document.getElementById("datePickerCopy").value = "";
-                employeeall_copy = []; // 배열 초기화
+                employeeall_copy = [];
                 return;
             }
             
             const targetDateFormatted = changeDate(targetDatePicker);
             
-            // 복사할 날짜에 계약기간이 유효한 직원들 필터링
             updateEmployeeCopyList(targetDateFormatted);
             
-            // 해당 날짜에 기존 계획이 있는지 확인
             const existingPlans = dailyPlanAll.filter(plan => {
                 return plan[1] == targetDateFormatted;
             });
@@ -1041,93 +848,64 @@
                 showCustomConfirm(
                     `선택한 날짜(${targetDatePicker})에 ${existingPlans.length}개의 기존 계획이 있습니다.\n기존 계획을 모두 삭제한 후 복사된 계획으로 대체하시겠습니까?`, 
                     async function () {
-                        // 사용자가 확인을 누른 경우 - 기존 계획 즉시 삭제
                         showLoading();
                         try {
-                            console.log(`기존 계획 ${existingPlans.length}개 삭제 중...`);
                             for (const existingPlan of existingPlans) {
-                                await deletePlanPromise(existingPlan[0]); // 계획_ID로 삭제
+                                await deletePlanPromise(existingPlan[0]);
                             }
                             
-                            // 전체 데이터 새로고침
                             await getPlanAll_id();
                             
                             showCustomAlert(`${existingPlans.length}개의 기존 계획이 삭제되었습니다. 이제 복사할 계획을 선택하고 저장해주세요.`);
                         } catch (error) {
-                            console.error("기존 계획 삭제 중 오류:", error);
                             showCustomAlert("기존 계획 삭제 중 오류가 발생했습니다: " + error);
                         } finally {
                             hideLoading();
                         }
                     },
                     function () {
-                        // 사용자가 취소를 누른 경우 - 날짜 선택 초기화
                         document.getElementById("datePickerCopy").value = "";
                     }
                 );
             }
         }
 
-        // 페이지 로드 시 초기화 및 데이터 로드
         document.addEventListener("DOMContentLoaded", function () {
             initSupabase();
 
-            // 오늘 날짜를 YYYY-MM-DD 형식으로 설정
             const today = new Date().toISOString().split("T")[0];
             document.getElementById("datePicker").value = today;
 
-            // 초기화 함수 호출 (한 번만 호출)
             initialize();
 
-            // 복사 테이블 초기화
             makeTable_plan_copy();
 
-
-
-
-
-
-
-            // 조회 버튼 이벤트 리스너
             document.getElementById("btn-plan-search").addEventListener("click", function () {
                 getPlanAll_id();
             });
 
-
-
-
-
-            // 복사 저장 버튼 이벤트 리스너
             document.getElementById("btn-copy-save").addEventListener("click", function () {
                 showCustomConfirm("복사된 계획들을 선택한 날짜로 저장하시겠습니까?", function () {
                     saveCopiedPlans();
                 });
             });
 
-            // datePickerCopy 날짜 변경 이벤트 리스너
             document.getElementById("datePickerCopy").addEventListener("change", function () {
-                // 복사된 계획 배열 초기화
                 copiedPlans = [];
-                // 복사된 테이블 초기화
                 makeTable_plan_copy();
-                // 기존 계획 확인
                 checkExistingPlansForCopyDate();
             });
 
-            // 직원 선택 모달 닫기 이벤트 리스너
             document.getElementById("close-staff-btn").addEventListener("click", function () {
                 document.getElementById("staffSelectModal").style.display = "none";
-                // 모달 제목 초기화
                 document.getElementById("staff-modal-title").textContent = "기존 계획 관련 재직 직원 재선택";
             });
 
-            // 직원 검색 초기화 버튼 이벤트 리스너
             document.getElementById("resetManagerBtn").addEventListener("click", function () {
                 document.getElementById("staffSearchBox").value = "";
-                populateValidStaffTable(); // 검색 초기화 후 유효한 직원들로 다시 채우기
+                populateValidStaffTable();
             });
 
-            // 직원 검색 입력 이벤트 리스너
             document.getElementById("staffSearchBox").addEventListener("input", function () {
                 const searchTerm = this.value;
                 filterValidStaffList(searchTerm);
@@ -1136,50 +914,40 @@
 
         function populateStaffTable(staffData) {
             const tableBody = document.getElementById("staff-list-body");
-            tableBody.innerHTML = ""; // 테이블 초기화
+            tableBody.innerHTML = "";
 
-            // 선택된 날짜 가져오기 (YYYYMMDD 형식)
             const selectedDate = changeDate(document.getElementById("datePicker").value);
 
-            // 계약기간 내에 있는 직원들을 필터링하고 저장할 배열
             let filteredStaff = [];
 
-            // 헤더 행은 제외하고 데이터 행부터 처리
             for (let i = 1; i < staffData.length; i++) {
-                // 계약시작일(인덱스 2)과 계약종료일(인덱스 3) 가져오기
                 const startDate = staffData[i][2] || "";
                 const endDate = staffData[i][3] || "";
 
-                // 날짜 비교: 선택된 날짜가 계약기간 내에 있는지 확인
                 if (startDate && selectedDate >= startDate &&
                     (!endDate || selectedDate <= endDate)) {
-                    // 필터링된 직원 데이터 저장
                     filteredStaff.push(staffData[i]);
                 }
             }
 
-            // 이름(인덱스 1)을 기준으로 오름차순 정렬
             filteredStaff.sort((a, b) => {
                 const nameA = a[1] || "";
                 const nameB = b[1] || "";
-                return nameA.localeCompare(nameB); // 한글 이름 정렬 지원
+                return nameA.localeCompare(nameB);
             });
 
-            // 정렬된 직원 데이터를 테이블에 추가
             for (let i = 0; i < filteredStaff.length; i++) {
                 const row = document.createElement("tr");
 
-                // 직원번호(인덱스 0)와 이름(인덱스 1) 컬럼
                 const idCell = document.createElement("td");
-                idCell.textContent = filteredStaff[i][0] || ""; // 직원번호
+                idCell.textContent = filteredStaff[i][0] || "";
 
                 const nameCell = document.createElement("td");
-                nameCell.textContent = filteredStaff[i][1] || ""; // 직원명
+                nameCell.textContent = filteredStaff[i][1] || "";
 
                 row.appendChild(idCell);
                 row.appendChild(nameCell);
 
-                // 행 더블클릭 이벤트 - Plan Entry가 없으므로 직원명 선택 기능 제거
                 row.addEventListener("dblclick", function () {
                     showCustomAlert("Plan Entry 영역이 제거되어 직원명 선택 기능이 비활성화되었습니다.");
                 });
@@ -1187,7 +955,6 @@
                 tableBody.appendChild(row);
             }
 
-            // 표시할 직원이 없는 경우 메시지 표시
             if (filteredStaff.length === 0) {
                 const row = document.createElement("tr");
                 const cell = document.createElement("td");
@@ -1234,13 +1001,7 @@
             });
         }
 
-
-
-
-
     </script>
-
-
 
 </body>
 
